@@ -1,0 +1,73 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sound_schedule}
+      POSTGRES_USER: ${POSTGRES_USER:-sound_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sound_pass}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: [ "bash", "/docker-entrypoint.sh" ]
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: core.settings
+    volumes:
+      - ./backend:/app
+      - ./scripts/entrypoint.sh:/docker-entrypoint.sh:ro
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    profiles: [ "dev" ]
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["celery", "-A", "core", "worker", "-l", "INFO"]
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+      - redis
+    profiles: [ "dev" ]
+
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["celery", "-A", "core", "beat", "-l", "INFO"]
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+      - redis
+    profiles: [ "dev" ]
+
+  nginx:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./backend/static:/static:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    profiles: [ "prod" ]
+
+volumes:
+  pgdata:

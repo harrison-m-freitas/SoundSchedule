@@ -1,0 +1,47 @@
+<div class="mt-2">
+  <div class="text-sm font-semibold mb-1">Ranking (top 5)</div>
+
+  <ol class="mt-1 space-y-1">
+    {% for candidate in ranking %}
+      <li class="group flex items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white p-2 hover:bg-indigo-50/30 transition
+                 {% if candidate.blocked %}opacity-60{% endif %}">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold
+                       {% if forloop.first %}bg-indigo-600 text-white{% else %}bg-indigo-50 text-indigo-900 ring-1 ring-indigo-100{% endif %}">
+            {{ forloop.counter }}
+          </span>
+          <span class="truncate
+                       {% if candidate.member.id == current_suggested_id %}font-semibold text-indigo-900{% else %}text-gray-800{% endif %}">
+            {{ candidate.member }}
+          </span>
+
+          {% if candidate.member.id == current_suggested_id %}
+            <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-purple-100 text-indigo-900 ring-1 ring-purple-200">
+              atual
+            </span>
+          {% endif %}
+
+          {% if candidate.blocked %}
+            <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium bg-rose-50 text-rose-700 ring-1 ring-rose-200">
+              bloqueado: {{ candidate.reason }}
+            </span>
+          {% endif %}
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0 text-[11px]">
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700 ring-1 ring-gray-200">
+            +{{ candidate.components.base_days_since }}d
+          </span>
+
+          {% if candidate.components.recent_penalty and candidate.components.recent_penalty > 0 %}
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700 ring-1 ring-gray-200">
+              -{{ candidate.components.recent_penalty }}d
+            </span>
+          {% endif %}
+        </div>
+      </li>
+    {% empty %}
+      <li class="text-gray-500 text-sm px-2 py-1">Sem candidatos.</li>
+    {% endfor %}
+  </ol>
+</div>

@@ -1,0 +1,151 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Escala da Mesa de Som{% endblock %}</title>
+
+  <meta name="description" content="Sistema de escala para operadores de mesa de som em cultos.">
+  <meta name="author" content="Harrison M Freitas">
+  <meta name="keywords" content="escala,mesa de som,operador,som,culto,igreja">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#4F46E5">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+  <style>[x-cloak]{ display: none !important; }</style>
+
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'favicon/favicon.ico' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
+  <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
+</head>
+<body class="bg-gray-100 text-gray-900">
+  <header class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+
+      <div class="flex items-center gap-3">
+        <a href="{% url 'calendar' %}" class="font-semibold tracking-tight hover:opacity-90">
+          Escala da Mesa de Som
+        </a>
+
+        <nav class="hidden md:flex items-center gap-2">
+          {% with request.resolver_match.url_name as current %}
+            <a href="{% url 'calendar' %}"
+               class="px-3 py-1.5 rounded-lg text-sm
+                      {% if current == 'calendar' %}
+                        bg-white text-indigo-700 shadow-sm
+                      {% else %}
+                        bg-white/10 text-white ring-1 ring-white/20 hover:bg-white/20
+                      {% endif %}">
+              Calendário
+            </a>
+
+            {% if perms.scheduling.view_member %}
+            <a href="{% url 'members_list' %}"
+               class="px-3 py-1.5 rounded-lg text-sm
+                      {% if current == 'members_list' %}
+                        bg-white text-indigo-700 shadow-sm
+                      {% else %}
+                        bg-white/10 text-white ring-1 ring-white/20 hover:bg-white/20
+                      {% endif %}">
+              Membros
+            </a>
+            {% endif %}
+
+            <a href="/admin/"
+               class="px-3 py-1.5 rounded-lg text-sm bg-white/10 text-white ring-1 ring-white/20 hover:bg-white/20">
+               Admin
+            </a>
+          {% endwith %}
+        </nav>
+      </div>
+
+      <div class="flex items-center gap-2">
+        {% if request.user.is_authenticated %}
+          <span class="hidden sm:inline text-sm text-white/90">
+            Olá, {{ request.user.get_short_name|default:request.user.username }}
+          </span>
+          <a href="/admin/logout/"
+             class="px-3 py-1.5 rounded-lg text-sm bg-white/10 text-white ring-1 ring-white/20 hover:bg-white/20">
+            Sair
+          </a>
+        {% else %}
+          <a href="/admin/login/" class="px-3 py-1.5 rounded-lg text-sm bg-white/10 text-white ring-1 ring-white/20 hover:bg-white/20">
+            Entrar
+          </a>
+        {% endif %}
+
+        <div class="md:hidden" x-data="{open:false}" @keydown.escape="open=false">
+          <button @click="open = !open"
+                  class="px-3 py-1.5 rounded-lg text-sm bg-white/10 text-white ring-1 ring-white/20 hover:bg-white/20"
+                  :aria-expanded="open.toString()" aria-controls="mobile-nav">
+            Menu
+          </button>
+          <div id="mobile-nav" x-cloak x-show="open" @click.outside="open=false"
+               class="absolute right-4 top-14 z-30 w-48 rounded-lg overflow-hidden bg-white text-gray-800 shadow-lg ring-1 ring-black/5">
+            {% with request.resolver_match.url_name as current %}
+              <a href="{% url 'calendar' %}"
+                 class="block px-4 py-2 text-sm hover:bg-gray-50
+                        {% if current == 'calendar' %}font-medium text-indigo-700{% endif %}">
+                Calendário
+              </a>
+              {% if perms.scheduling.view_member %}
+              <a href="{% url 'members_list' %}"
+                 class="block px-4 py-2 text-sm hover:bg-gray-50
+                        {% if current == 'members_list' %}font-medium text-indigo-700{% endif %}">
+                Membros
+              </a>
+              {% endif %}
+              <a href="/admin/" class="block px-4 py-2 text-sm hover:bg-gray-50">Admin</a>
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="max-w-5xl mx-auto p-4">
+    {% if messages %}
+      <div id="django-messages" class="space-y-2 mb-4">
+        {% for message in messages %}
+          <div
+            x-data="{ show: true }" x-show="show" x-transition
+            x-init="setTimeout(() => show = false, 2500)"
+            class="flex items-start gap-3 p-3 rounded-lg ring-1
+            {% if message.tags == 'success' %}
+              bg-emerald-50 text-emerald-900 ring-emerald-200"
+            {% elif message.tags == 'error' %}
+              bg-rose-50 text-rose-900 ring-rose-200"
+            {% elif message.tags == 'warning' %}
+              bg-amber-50 text-amber-900 ring-amber-200"
+            {% else %}
+              bg-indigo-50 text-indigo-900 ring-indigo-200"
+            {% endif %}
+          >
+            <div class="flex-1">{{ message }}</div>
+            <button type="button" @click="show=false" class="shrink-0 px-2 py-1 text-sm rounded hover:bg-black/5">Fechar</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- HTMX: CSRF -->
+  <script>
+    document.addEventListener("htmx:configRequest", (event) => {
+      const getCookie = (name) => {
+        const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return v ? v.pop() : '';
+      };
+      event.detail.headers['X-CSRFToken'] = getCookie('csrftoken');
+    });
+  </script>
+</body>
+</html>

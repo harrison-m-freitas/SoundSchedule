@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% block title %}Membros{% endblock %}
+
+{% block content %}
+<style>[x-cloak]{display:none}</style>
+
+<div class="max-w-5xl mx-auto"
+     x-data="membersList()"
+     x-cloak>
+
+  <!-- Header / Ações -->
+  <div class="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <h1 class="text-2xl font-semibold">Membros</h1>
+
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <!-- Busca -->
+      <label class="relative block" for="member-search">
+        <input
+          id="member-search"
+          type="search"
+          x-model.debounce.300ms="q"
+          placeholder="Buscar membro..."
+          class="w-full sm:w-80 rounded-lg border border-gray-300 pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          aria-label="Buscar membro por nome, apelido, e-mail ou telefone"
+        />
+        <span class="absolute left-3 top-2.5 text-gray-400" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+          </svg>
+        </span>
+      </label>
+
+      <!-- Filtros (Acessíveis) -->
+      <fieldset class="inline-flex rounded-lg overflow-hidden ring-1 ring-gray-200" aria-label="Filtro de status">
+        <legend class="sr-only">Filtro de status</legend>
+
+        <label class="px-3 py-2 text-sm cursor-pointer flex items-center gap-2"
+               :class="mode==='all' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'">
+          <input type="radio" class="sr-only" name="statusMode" value="all" x-model="mode">
+          <span>Todos</span>
+        </label>
+
+        <label class="px-3 py-2 text-sm cursor-pointer flex items-center gap-2 border-l border-gray-200"
+               :class="mode==='active' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'">
+          <input type="radio" class="sr-only" name="statusMode" value="active" x-model="mode">
+          <span>Ativos</span>
+        </label>
+
+        <label class="px-3 py-2 text-sm cursor-pointer flex items-center gap-2 border-l border-gray-200"
+               :class="mode==='inactive' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'">
+          <input type="radio" class="sr-only" name="statusMode" value="inactive" x-model="mode">
+          <span>Inativos</span>
+        </label>
+      </fieldset>
+
+      {% if perms.scheduling.add_member %}
+      <a href="/admin/scheduling/member/add/"
+         class="inline-flex items-center justify-center px-3 py-2 rounded-lg text-sm bg-indigo-600 text-white hover:bg-indigo-700">
+        + Novo
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Card -->
+  <div class="bg-white rounded-xl shadow-sm ring-1 ring-black/5 overflow-hidden">
+    <div class="px-5 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white">
+      <p class="text-sm opacity-90">
+        Lista de membros da escala. Total: {{ members|length }}.
+        <span class="ml-2 text-white/90" role="status" aria-live="polite">
+          <template x-if="filteredCount !== null">
+             <span>(<span x-text="filteredCount"></span> visíveis)</span>
+          </template>
+        </span>
+      </p>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table id="members-table" class="min-w-full text-sm">
+        <thead class="bg-gray-50 text-gray-700">
+          <tr class="hidden md:table-row">
+            <th class="px-4 py-2 text-left font-medium">Membro</th>
+            <th class="px-4 py-2 text-left font-medium">Contato</th>
+            <th class="px-4 py-2 text-left font-medium">Status</th>
+            <th class="px-4 py-2 text-center font-medium">Limite/mês</th>
+            <th class="px-4 py-2 text-right font-medium">Ações</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100">
+          {% for m in members %}
+            {% with name=m.name|stringformat:"s"|default_if_none:"" nick=m.nickname|default_if_none:"" email=m.email|default_if_none:"" phone=m.phone|default_if_none:"" %}
+            {% with key=name|add:" "|add:nick|add:" "|add:email|add:" "|add:phone %}
+            <tr
+              class="hover:bg-gray-50 block md:table-row"
+              x-show="fits($el)"
+              x-transition.opacity
+              data-active="{% if m.active %}1{% else %}0{% endif %}"
+              data-key="{{ key }}"
+            >
+              <!-- Membro -->
+              <td class="px-4 py-2 block md:table-cell">
+                <span class="md:hidden block text-xs uppercase text-gray-500">Membro</span>
+                <div class="font-medium">{{ m.name }}</div>
+                {% if m.nickname %}
+                  <div class="text-xs text-gray-500">“{{ m.nickname }}”</div>
+                {% endif %}
+              </td>
+
+              <!-- Contato -->
+              <td class="px-4 py-2 text-gray-700 block md:table-cell">
+                <span class="md:hidden block text-xs uppercase text-gray-500">Contato</span>
+                {% if m.email %}<div class="truncate">{{ m.email }}</div>{% endif %}
+                {% if m.phone %}<div class="text-xs text-gray-500">{{ m.phone }}</div>{% endif %}
+                {% if not m.email and not m.phone %}
+                  <span class="text-xs text-gray-400">—</span>
+                {% endif %}
+              </td>
+
+              <!-- Status -->
+              <td class="px-4 py-2 block md:table-cell">
+                <span class="md:hidden block text-xs uppercase text-gray-500">Status</span>
+                {% if m.active %}
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-indigo-900">
+                    Ativo
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700">
+                    Inativo
+                  </span>
+                {% endif %}
+              </td>
+
+              <!-- Limite -->
+              <td class="px-4 py-2 text-center block md:table-cell">
+                <span class="md:hidden block text-xs uppercase text-gray-500">Limite/mês</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-indigo-900">
+                  {{ m.monthly_limit }}
+                </span>
+              </td>
+
+              <!-- Ações -->
+              <td class="px-4 py-2 text-right block md:table-cell">
+                <span class="md:hidden block text-xs uppercase text-gray-500 mb-1">Ações</span>
+                <a class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                   href="{% url 'member_edit' m.id %}">
+                  Editar
+                </a>
+              </td>
+            </tr>
+            {% endwith %}
+            {% endwith %}
+          {% empty %}
+            <tr x-show="filteredCount === 0 && {{ members|length }} !== 0">
+              <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                Nenhum resultado para a busca atual.
+              </td>
+            </tr>
+          {% endfor %}
+
+          <tr x-show="filteredCount === 0 && {{ members|length }} !== 0">
+            <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+              Nenhum resultado para a busca atual.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Componente Alpine: normaliza acentos, aplica filtros e mantém contagem -->
+<script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('membersList', () => ({
+      q: '',
+      mode: 'all',
+      filteredCount: 0,
+      stats: { total: 0, matched: 0, active: 0, inactive: 0, q: '', mode: '', ts: '' },
+
+      init() {
+        this.$watch('q',    () => this.recount());
+        this.$watch('mode', () => this.recount());
+        this.recount();
+      },
+
+      normalize(s) {
+        return (s || '')
+          .toString()
+          .normalize('NFD')
+          .replace(/\p{M}+/gu, '') // remove diacríticos de forma ampla
+          .toLowerCase()
+          .trim();
+      },
+
+      fits(el) {
+        const rawKey = el?.dataset?.key ?? '';
+        const key = this.normalize(rawKey);
+        const query = this.normalize(this.q);
+
+        const active = el?.dataset?.active === '1';
+        const modeOk = (
+          this.mode === 'all' ||
+          (this.mode === 'active' && active) ||
+          (this.mode === 'inactive' && !active)
+        );
+
+        return modeOk && (query === '' || key.includes(query));
+      },
+
+      recount() {
+        const rows = Array.from(document.querySelectorAll('#members-table tbody tr[data-key]'));
+
+        const totals = { total: rows.length, active: 0, inactive: 0, matched: 0 };
+        for (const tr of rows) {
+          const isActive = tr.dataset.active === '1';
+          if (isActive) { totals.active++; } else { totals.inactive++; }
+          if (this.fits(tr)) { totals.matched++; }
+        }
+
+        this.filteredCount = totals.matched;
+        this.stats = { ...totals, q: this.q, mode: this.mode, ts: new Date().toISOString() };
+      }
+    }));
+  });
+</script>
+{% endblock %}

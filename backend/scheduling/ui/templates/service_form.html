@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{% if service %}Editar Serviço{% else %}Novo Serviço{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <header class="mb-4 flex items-center justify-between">
+    <h1 class="text-2xl font-semibold">
+      {% if service %}Editar Serviço{% else %}Novo Serviço Extra{% endif %}
+    </h1>
+    <a href="{% url 'calendar' %}" class="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300">
+      <span class="text-gray-500" aria-hidden="true">&larr;</span> Voltar
+    </a>
+  </header>
+
+  <div class="bg-white rounded-xl shadow-sm ring-1 ring-black/5 overflow-hidden">
+    <div class="px-5 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-center">
+      <p class="text-sm opacity-90">
+        Preencha os campos abaixo. Para eventos especiais, utilize o rótulo (ex.: “Ceia”, “Conferência”).
+      </p>
+    </div>
+
+    <form method="post" class="px-5 py-6 space-y-6">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="p-3 rounded-lg bg-red-50 text-red-800 text-sm">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      {% with label='block text-sm font-medium text-gray-700' help='mt-1 text-xs text-gray-500' err='mt-1 text-sm text-red-600' %}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label for="{{ form.date.id_for_label }}" class="{{ label }}">Data <span class="text-red-600">*</span></label>
+            {{ form.date }}
+            {% if form.date.errors %}<p class="{{ err }}">{{ form.date.errors|striptags }}</p>{% endif %}
+          </div>
+
+          <div x-data="{ setTime(v){ $refs.time.value = v; $refs.time.dispatchEvent(new Event('change')); } }">
+            <label for="{{ form.time.id_for_label }}" class="{{ label }}">Hora <span class="text-red-600">*</span></label>
+            {{ form.time }}
+            {% if form.time.errors %}<p class="{{ err }}">{{ form.time.errors|striptags }}</p>{% endif %}
+            <div class="mt-2 flex flex-wrap gap-2 text-xs">
+              <button type="button" @click="setTime('09:00')" class="px-2 py-1 rounded border border-gray-300 hover:bg-gray-50">09:00</button>
+              <button type="button" @click="setTime('18:00')" class="px-2 py-1 rounded border border-gray-300 hover:bg-gray-50">18:00</button>
+              <button type="button" @click="setTime('19:30')" class="px-2 py-1 rounded border border-gray-300 hover:bg-gray-50">19:30</button>
+            </div>
+          </div>
+
+          <div>
+            <label for="{{ form.type.id_for_label }}" class="{{ label }}">Tipo <span class="text-red-600">*</span></label>
+            {{ form.type }}
+            {% if form.type.errors %}<p class="{{ err }}">{{ form.type.errors|striptags }}</p>{% endif %}
+            {% if form.type.help_text %}<p class="{{ help }}">{{ form.type.help_text }}</p>{% endif %}
+          </div>
+        </div>
+
+        <div>
+          <label for="{{ form.label.id_for_label }}" class="{{ label }}">Rótulo (opcional)</label>
+          {{ form.label }}
+          {% if form.label.errors %}<p class="{{ err }}">{{ form.label.errors|striptags }}</p>{% endif %}
+          {% if form.label.help_text %}<p class="{{ help }}">{{ form.label.help_text }}</p>{% endif %}
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-3">
+          <a href="{% url 'calendar' %}" class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">
+            Cancelar
+          </a>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500">
+            {% if service %}Salvar alterações{% else %}Salvar{% endif %}
+          </button>
+        </div>
+      {% endwith %}
+    </form>
+  </div>
+</div>
+
+{% endblock %}

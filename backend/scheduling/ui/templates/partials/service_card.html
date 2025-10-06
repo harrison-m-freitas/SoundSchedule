@@ -1,0 +1,144 @@
+<div id="service-{{ s.id }}" class="relative rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition">
+
+  {% if s.type == "Extra" %}
+    {% if perms.scheduling.change_service or perms.scheduling.delete_service %}
+      <div class="absolute right-2 top-2" x-data="{open:false}">
+        <button type="button"
+              class="px-2 py-1 text-xs rounded-lg bg-white ring-1 ring-gray-200 hover:bg-gray-50"
+              @click="open = !open"
+              aria-label="Mais ações">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+          </svg>
+        </button>
+
+        <div x-show="open" @click.outside="open=false"
+             class="absolute right-0 mt-1 w-44 bg-white border rounded-lg shadow-lg z-20 overflow-hidden">
+          {% if perms.scheduling.change_service %}
+            <a class="block px-3 py-2 text-sm hover:bg-gray-50"
+             href="{% url 'service_edit' s.id %}">Editar</a>
+          {% endif %}
+          {% if perms.scheduling.delete_service %}
+            <form
+              hx-post="{% url 'service_delete' s.id %}"
+              hx-target="#service-{{ s.id }}"
+              hx-swap="outerHTML"
+              method="post">
+              {% csrf_token %}
+              <button type="submit"
+                      class="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 text-red-600"
+                      onclick="return confirm('Remover este serviço extra?');">
+                Remover
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <div class="flex flex-wrap items-center gap-2 pr-12">
+    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-900 ring-1 ring-indigo-100">
+      {{ s.time }}
+    </span>
+    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-indigo-900 ring-1 ring-purple-100">
+      {{ s.type }}
+    </span>
+
+    {% if s.label %}
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white text-gray-700 ring-1 ring-gray-200">
+        {{ s.label }}
+      </span>
+    {% endif %}
+  </div>
+
+  <div class="mt-2 space-y-2">
+    {% if s.assignments.exists %}
+      {% for a in s.assignments.all %}
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between bg-gray-50 p-2 rounded-lg ring-1 ring-gray-100 gap-2">
+          <div class="min-w-0">
+            {% if a.status == "confirmed" %}
+              <span class="inline-block w-2 h-2 bg-green-600 rounded-full mr-1"></span>
+            {% elif a.status == "suggested" %}
+              <span class="inline-block w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>
+            {% else %}
+              <span class="inline-block w-2 h-2 bg-gray-500 rounded-full mr-1"></span>
+            {% endif %}
+            <strong class="truncate">{{ a.member }}</strong>
+            <span class="text-xs text-gray-500">({{ a.get_status_display }})</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <form
+              hx-post="{% url 'swap_assignment' a.id %}"
+              hx-target="#service-{{ s.id }}"
+              hx-swap="outerHTML"
+              method="post"
+              class="flex items-center gap-2"
+            >
+              {% csrf_token %}
+              <label for="member-select-{{ a.id }}" class="sr-only">Selecionar membro</label>
+              <select id="member-select-{{ a.id }}" name="member_id"
+                      class="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                {% for m in members %}
+                  <option value="{{ m.id }}" {% if m.id == a.member.id %}selected{% endif %}>{{ m }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit"
+                      class="px-2 py-1 text-sm rounded-lg bg-white ring-1 ring-gray-300 hover:bg-gray-50">
+                Trocar
+              </button>
+            </form>
+
+            <!-- Confirmar (HTMX POST) -->
+            <form
+              hx-post="{% url 'confirm_assignment' a.id %}"
+              hx-target="#service-{{ s.id }}"
+              hx-swap="outerHTML"
+              method="post"
+            >
+              {% csrf_token %}
+              <button type="submit"
+                      class="px-2 py-1 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500">
+                Confirmar
+              </button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between bg-gray-50 p-2 rounded-lg ring-1 ring-gray-100 gap-2">
+        <div class="text-red-700 font-medium">Vago</div>
+        <div class="flex items-center gap-2">
+          {% if perms.scheduling.add_assignment %}
+            <form
+              hx-post="{% url 'assignment_add' s.id %}"
+              hx-target="#service-{{ s.id }}"
+              hx-swap="outerHTML"
+              method="post"
+              class="flex items-center gap-2"
+            >
+              {% csrf_token %}
+              <label for="member-add-{{ s.id }}" class="sr-only">Selecionar membro</label>
+              <select id="member-add-{{ s.id }}" name="member_id"
+                      class="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                {% for m in members %}
+                  <option value="{{ m.id }}">{{ m }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit"
+                      class="px-2 py-1 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500">
+                Adicionar
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Painel de sugestões -->
+  <div id="rank-svc-{{ s.id }}">
+    <div class="text-xs text-gray-400">Carregando o ranking...</div>
+  </div>
+</div>

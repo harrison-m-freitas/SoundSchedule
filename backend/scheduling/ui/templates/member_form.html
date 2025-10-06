@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Editar Membro{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <!-- Header -->
+  <div class="mb-4 flex items-center justify-between">
+    <h1 class="text-2xl font-semibold">
+      Editar Membro{% if member %}: {{ member }}{% endif %}
+    </h1>
+    <a href="{% url 'members_list' %}" class="inline-flex items-center gap-2 text-sm px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">
+      <span aria-hidden="true">←</span> Voltar
+    </a>
+  </div>
+
+  <!-- Card -->
+  <div class="bg-white rounded-xl shadow-sm ring-1 ring-black/5 overflow-hidden">
+    <div class="px-5 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-center">
+      <p class="text-sm opacity-90">
+        Atualize os dados do membro. O limite mensal controla quantos serviços ele pode confirmar por mês.
+      </p>
+    </div>
+
+    <form method="post" class="px-5 py-6 space-y-6" x-data="{
+        inc(){ const el=$refs.limit; el.value = Math.max(1, (parseInt(el.value||1)+1)); },
+        dec(){ const el=$refs.limit; el.value = Math.max(1, (parseInt(el.value||1)-1)); },
+        setLimit(v){ const el=$refs.limit; el.value = v; }
+      }">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="p-3 rounded-lg bg-red-50 text-red-800 text-sm">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      {% with label='block text-sm font-medium text-gray-700' help='mt-1 text-xs text-gray-500' err='mt-1 text-sm text-red-600' %}
+
+      <!-- Grid topo -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Nome -->
+        <div>
+          <label for="{{ form.name.id_for_label }}" class="{{ label }}">Nome <span class="text-red-600">*</span></label>
+          {{ form.name }}
+          {% if form.name.errors %}<p class="{{ err }}">{{ form.name.errors|striptags }}</p>{% endif %}
+        </div>
+
+        <!-- Apelido -->
+        <div>
+          <label for="{{ form.nickname.id_for_label }}" class="{{ label }}">Apelido</label>
+          {{ form.nickname }}
+          {% if form.nickname.errors %}<p class="{{ err }}">{{ form.nickname.errors|striptags }}</p>{% endif %}
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="{{ form.email.id_for_label }}" class="{{ label }}">E-mail</label>
+          {{ form.email }}
+          {% if form.email.errors %}<p class="{{ err }}">{{ form.email.errors|striptags }}</p>{% endif %}
+        </div>
+
+        <!-- Telefone -->
+        <div>
+          <label for="{{ form.phone.id_for_label }}" class="{{ label }}">Telefone</label>
+          {{ form.phone }}
+          {% if form.phone.errors %}<p class="{{ err }}">{{ form.phone.errors|striptags }}</p>{% endif %}
+        </div>
+      </div>
+
+      <!-- Linha: Ativo + Limite -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Ativo (switch) -->
+        <div>
+          <span class="{{ label }}">Status</span>
+          <div class="mt-2 flex items-center gap-3">
+            <label class="relative inline-flex items-center cursor-pointer">
+              {{ form.active }}
+              <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500
+                          peer-checked:bg-indigo-600 transition-colors"></div>
+              <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow
+                          transition-transform peer-checked:translate-x-5"></div>
+            </label>
+            <span class="text-sm text-gray-700 select-none">
+              {% if form.instance.active %}Ativo{% else %}Inativo{% endif %}
+            </span>
+          </div>
+          {% if form.active.errors %}<p class="{{ err }}">{{ form.active.errors|striptags }}</p>{% endif %}
+        </div>
+
+        <!-- Limite mensal -->
+        <div>
+          <label for="{{ form.monthly_limit.id_for_label }}" class="{{ label }}">Limite mensal <span class="text-red-600">*</span></label>
+          <div class="mt-1 flex items-center gap-2">
+            <button type="button" @click="dec()" class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">−</button>
+            {{ form.monthly_limit }}
+            <button type="button" @click="inc()" class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">+</button>
+
+            <div class="hidden md:flex items-center gap-2 ml-2 text-xs">
+              <span class="text-gray-500">Rápido:</span>
+              <button type="button" @click="setLimit(1)" class="px-2 py-1 rounded border border-gray-300 hover:bg-gray-50">1</button>
+              <button type="button" @click="setLimit(2)" class="px-2 py-1 rounded border border-gray-300 hover:bg-gray-50">2</button>
+              <button type="button" @click="setLimit(3)" class="px-2 py-1 rounded border border-gray-300 hover:bg-gray-50">3</button>
+            </div>
+          </div>
+          {% if form.monthly_limit.help_text %}<p class="{{ help }}">{{ form.monthly_limit.help_text }}</p>{% endif %}
+          {% if form.monthly_limit.errors %}<p class="{{ err }}">{{ form.monthly_limit.errors|striptags }}</p>{% endif %}
+        </div>
+      </div>
+
+      <!-- Notas -->
+      <div>
+        <label for="{{ form.notes.id_for_label }}" class="{{ label }}">Notas</label>
+        {{ form.notes }}
+        {% if form.notes.errors %}<p class="{{ err }}">{{ form.notes.errors|striptags }}</p>{% endif %}
+      </div>
+
+      <!-- Footer actions -->
+      <div class="pt-2 flex items-center justify-end gap-3">
+        <a href="{% url 'members_list' %}" class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">
+          Cancelar
+        </a>
+        <button type="submit" class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500">
+          Salvar
+        </button>
+      </div>
+
+      {% endwith %}
+    </form>
+  </div>
+</div>
+{% endblock %}

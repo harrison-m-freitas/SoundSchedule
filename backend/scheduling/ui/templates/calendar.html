@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}Calendário - {{ month_name }} {{ year }}{% endblock %}
+
+{% block content %}
+<div id="calendar-toolbar-sentinel" class="h-px"></div>
+
+<div class="sticky top-0 z-10">
+  <div id="calendar-toolbar-inner"
+       class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-b border-white/10
+              rounded-xl transition-[border-radius] duration-200">
+    <div class="max-w-5xl mx-auto px-3 py-4 flex flex-col items-center gap-3">
+
+      <h1 class="text-lg md:text-xl font-semibold text-center flex-1 drop-shadow-sm">
+        Calendário — {{ month_name }} {{ year }}
+      </h1>
+
+      <div class="flex items-center gap-2">
+        <a class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white text-indigo-700 hover:bg-indigo-50"
+           href="?year={{prev_year}}&month={{prev_month}}" title="Anterior">
+          <span aria-hidden="true">◀</span><span class="hidden sm:inline">Anterior</span>
+        </a>
+        <a class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white text-indigo-700 hover:bg-indigo-50"
+           href="?year={{next_year}}&month={{next_month}}" title="Próximo">
+          <span class="hidden sm:inline">Próximo</span><span aria-hidden="true">▶</span>
+        </a>
+
+        <form method="get" class="ml-1 flex items-center gap-2">
+          <label for="month-select" class="sr-only">Mês</label>
+          <select id="month-select" name="month"
+                  class="bg-white text-gray-900 rounded-lg border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-white/60">
+            {% for m_num, m_name in months_select %}
+              <option value="{{ m_num }}" {% if m_num == month %}selected{% endif %}>{{ m_name }}</option>
+            {% endfor %}
+          </select>
+          <label for="year-select" class="sr-only">Ano</label>
+          <select id="year-select" name="year"
+                  class="bg-white text-gray-900 rounded-lg border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-white/60">
+            {% for y in years_select %}
+              <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit"
+                  class="px-3 py-2 rounded-lg bg-white text-indigo-700 hover:bg-indigo-50">
+            Ir
+          </button>
+          <a class="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 ring-1 ring-white/20"
+             href="?year={{today_year}}&month={{today_month}}" title="Hoje (T)">
+            Hoje
+          </a>
+        </form>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <a class="px-3 py-2 rounded-lg bg-white text-indigo-700 hover:bg-indigo-50"
+           href="/generate/?year={{year}}&month={{month}}">
+          Gerar sugestões
+        </a>
+
+        <details class="relative inline-block">
+          <summary class="px-3 py-2 bg-white/10 text-white rounded-lg cursor-pointer select-none ring-1 ring-white/20 hover:bg-white/20">
+            Exportar
+          </summary>
+          <div class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg overflow-hidden">
+            <a class="block px-3 py-2 hover:bg-gray-50 text-gray-800"
+               href="/api/v1/export/xlsx?ano={{year}}&mes={{month}}">Excel (.xlsx)</a>
+            <a class="block px-3 py-2 hover:bg-gray-50 text-gray-800"
+               href="/api/v1/export/ics?ano={{year}}&mes={{month}}">Calendário (.ics)</a>
+          </div>
+        </details>
+
+
+        {% if perms.scheduling.add_service %}
+        <a class="px-3 py-2 rounded-lg bg-white text-indigo-700 hover:bg-indigo-50"
+           href="/services/new/?year={{year}}&month={{month}}">
+          Adicionar serviço extra
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-5xl mx-auto px-2 mt-3 mt-b">
+  <div class="flex flex-wrap items-center gap-3 text-xs text-gray-600">
+    <span class="inline-flex items-center gap-1">
+      <span class="inline-block w-2 h-2 rounded-full bg_confirmed"></span> Confirmado
+    </span>
+    <span class="inline-flex items-center gap-1">
+      <span class="inline-block w-2 h-2 rounded-full bg_suggested"></span> Sugerido
+    </span>
+    <span class="inline-flex items-center gap-1">
+      <span class="inline-block w-2 h-2 rounded-full bg-gray-500"></span> Outro
+    </span>
+    <span class="ml-auto text-[11px] text-gray-500">
+      Atalhos: ←/→ navega · T hoje · G gerar · X Excel · I ICS · A novo extra
+    </span>
+  </div>
+</div>
+
+<div class="max-w-5xl mx-auto">
+  <div class="bg-white rounded-xl shadow-sm ring-1 ring-black/5 overflow-hidden">
+    <div class="px-5 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+      <p class="text-sm opacity-90">Clique para editar, trocar ou confirmar diretamente nos cards.</p>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 text-gray-700 text-sm">
+          <tr>
+            <th class="p-2 text-left w-28">Dia</th>
+            <th class="p-2 text-left">Serviços</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          {% for day, obj in days %}
+            <tr class="align-top hover:bg-gray-50">
+              <td class="p-3">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-50 text-indigo-900 font-semibold ring-1 ring-indigo-100">
+                  {{ day }}
+                </span>
+              </td>
+              <td class="p-3">
+                <div class="grid grid-cols-1 gap-3">
+                  {% for s in obj.services|dictsort:"time" %}
+                    {% include "partials/service_card.html" with s=s %}
+                  {% endfor %}
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+  </div>
+</div>
+
+<!-- Loader de ranking mensal (mantido) -->
+<div
+  id="ranking-monthly-loader"
+  hx-get="{% url 'ranking_candidates' %}?year={{year}}&month={{month}}"
+  hx-trigger="load ranking-changed from:body"
+  hx-swap="none">
+</div>
+
+
+<style>
+  .bg_suggested {
+    background-color: #eab308;
+  }
+  .bg_confirmed {
+    background-color: #16a34a;
+  }
+</style>
+<script>
+  // ← → navegação; T hoje; G gerar; X export XLSX; I export ICS; A serviço extra
+  document.addEventListener('keydown', (e) => {
+    if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+    if (e.key === 'ArrowLeft') { window.location = `?year={{prev_year}}&month={{prev_month}}`; }
+    if (e.key === 'ArrowRight') { window.location = `?year={{next_year}}&month={{next_month}}`; }
+    if (e.key.toLowerCase() === 't') { window.location = `?year={{today_year}}&month={{today_month}}`; }
+    if (e.key.toLowerCase() === 'g') { window.location = `/generate/?year={{year}}&month={{month}}`; }
+    if (e.key.toLowerCase() === 'x') { window.location = `/api/v1/export/xlsx?ano={{year}}&mes={{month}}`; }
+    if (e.key.toLowerCase() === 'i') { window.location = `/api/v1/export/ics?ano={{year}}&mes={{month}}`; }
+    if (e.key.toLowerCase() === 'a') { window.location = `/services/new/?year={{year}}&month={{month}}`; }
+  });
+
+  (function () {
+    const sentinel = document.getElementById('calendar-toolbar-sentinel');
+    const inner = document.getElementById('calendar-toolbar-inner');
+    if (!sentinel || !inner) return;
+
+    const io = new IntersectionObserver(([entry]) => {
+      const stuck = entry.intersectionRatio === 0; // sentinel saiu da viewport ⇒ header está “grudado”
+      inner.classList.toggle('rounded-b-xl', !stuck);
+      inner.classList.toggle('rounded-none', stuck);
+    }, { threshold: [0, 1] });
+
+    io.observe(sentinel);
+  })();
+</script>
+
+{% endblock %}
