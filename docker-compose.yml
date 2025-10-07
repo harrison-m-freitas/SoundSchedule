@@ -7,9 +7,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sound_pass}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
+    restart: unless-stopped
 
   web:
     build:
@@ -29,6 +31,7 @@ services:
       - db
       - redis
     profiles: [ "dev", "prod" ]
+    restart: unless-stopped
 
   worker:
     build:
@@ -43,6 +46,7 @@ services:
       - db
       - redis
     profiles: [ "dev", "prod" ]
+    restart: unless-stopped
 
   beat:
     build:
@@ -57,6 +61,7 @@ services:
       - db
       - redis
     profiles: [ "dev", "prod" ]
+    restart: unless-stopped
 
   nginx:
     image: nginx:1.27-alpine
@@ -68,6 +73,7 @@ services:
     depends_on:
       - web
     profiles: [ "prod" ]
+    restart: unless-stopped
 
 volumes:
   pgdata:
