@@ -9,6 +9,9 @@ env = environ.Env(
     DJANGO_SECRET_KEY=(str, "insecure-key"),
     DJANGO_ALLOWED_HOSTS=(str, "localhost,127.0.0.1"),
     TIME_ZONE=(str, "America/Sao_Paulo"),
+    CSRF_TRUSTED_ORIGINS=(str, ""),
+    SESSION_COOKIE_SECURE=(bool, False),
+    CSRF_COOKIE_SECURE=(bool, False),
 
     DEFAULT_MORNING_TIME=(str, "09:00"),
     DEFAULT_EVENING_TIME=(str, "18:00"),
@@ -40,6 +43,12 @@ environ.Env.read_env(os.path.join(BASE_DIR.parent, ".env"))
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env("DJANGO_DEBUG")
 ALLOWED_HOSTS = [h.strip() for h in env("DJANGO_ALLOWED_HOSTS").split(",")]
+
+CSRF_TRUSTED_ORIGINS = [h.strip() for h in env("CSRF_TRUSTED_ORIGINS").split(",") if h.strip()]
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+SESSION_COOKIE_SECURE = env("SESSION_COOKIE_SECURE")
+CSRF_COOKIE_SECURE = env("CSRF_COOKIE_SECURE")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
