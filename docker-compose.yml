@@ -28,7 +28,7 @@ services:
     depends_on:
       - db
       - redis
-    profiles: [ "dev" ]
+    profiles: [ "dev", "prod" ]
 
   worker:
     build:
@@ -42,7 +42,7 @@ services:
     depends_on:
       - db
       - redis
-    profiles: [ "dev" ]
+    profiles: [ "dev", "prod" ]
 
   beat:
     build:
@@ -56,7 +56,7 @@ services:
     depends_on:
       - db
       - redis
-    profiles: [ "dev" ]
+    profiles: [ "dev", "prod" ]
 
   nginx:
     image: nginx:1.27-alpine
