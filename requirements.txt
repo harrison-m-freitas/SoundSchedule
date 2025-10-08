@@ -12,3 +12,5 @@ pytest-django==4.9.*
 ruff==0.6.*
 black==24.8.*
 gunicorn==22.*
+setuptools>=68
+django-widget-tweaks==1.5.0

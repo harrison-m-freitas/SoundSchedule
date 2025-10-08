@@ -10,6 +10,7 @@ from scheduling.api.v1.urls import urlpatterns as api_urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("accounts/", include("django.contrib.auth.urls")),
     path("", include(scheduling_urls)),
     path("api/v1/", include((api_urls, "api"))),
 
@@ -18,3 +19,5 @@ urlpatterns = [
         permanent=True
     )),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+handler404 = "core.views.error_404"

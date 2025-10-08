@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Página não encontrada — Escala da Mesa de Som{% endblock %}
+
+{% block content %}
+  <div class="max-w-xl mx-auto bg-white rounded-xl shadow ring-1 ring-black/5 p-6 text-center">
+    <div class="mx-auto mb-3 inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50">
+      <span class="text-indigo-700 text-xl">404</span>
+    </div>
+    <h1 class="text-2xl font-semibold mb-2">Página não encontrada</h1>
+
+    <p class="text-gray-600">
+      Desculpe, não encontramos o recurso solicitado.
+    </p>
+
+    <div class="mt-5 flex flex-wrap items-center justify-center gap-2">
+      <a href="/" class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">
+        Ir para o início
+      </a>
+      <a href="{% url 'login' %}" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200">
+        Entrar
+      </a>
+    </div>
+
+    <p class="mt-4 text-xs text-gray-400">
+      Se o problema persistir, informe ao administrador.
+    </p>
+  </div>
+{% endblock %}

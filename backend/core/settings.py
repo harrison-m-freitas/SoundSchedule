@@ -60,17 +60,20 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_filters",
     "scheduling",
+    "widget_tweaks",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "core.middleware.StrictSlashRedirectMiddleware", # custom middleware to enforce trailing slashes
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "core.middleware.CurrentUserMiddleware", # custom middleware to track current user
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "core.middleware.LoginRequiredMiddleware", # custom middleware to enforce login
 ]
 
 ROOT_URLCONF = "core.urls"
@@ -158,3 +161,20 @@ LOGGING = {
         "scheduling": {"handlers": ["console"], "level": "INFO"},
     },
 }
+
+# ==== Auth settings ====
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/accounts/login/"
+
+LOGIN_EXEMPT_PREFIXES = (
+    "/accounts/login/",
+    "/accounts/logout/",
+    "/admin/login/",
+    "/api/auth/",
+    "/static/",
+    "/favicon.ico",
+    "/favicon.png",
+)
+
+APPEND_SLASH = True
