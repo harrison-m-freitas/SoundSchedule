@@ -3,142 +3,142 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-10-08 14:49-0300\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2025-10-08 15:00-0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language-Team: Portuguese (Brazil) <LL@li.org>\n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
 #: scheduling/ui/templates/calendar.html:4
 #: scheduling/ui/templates/calendar.html:17
 msgid "Calendário"
-msgstr ""
+msgstr "Calendário"
 
 #: scheduling/ui/templates/calendar.html:22
 #: scheduling/ui/templates/calendar.html:23
 #: scheduling/ui/templates/calendar.html:88
 #: scheduling/ui/templates/calendar.html:89
 msgid "Hoje"
-msgstr ""
+msgstr "Hoje"
 
 #: scheduling/ui/templates/calendar.html:35
 msgid "Mais ações"
-msgstr ""
+msgstr "Mais ações"
 
 #: scheduling/ui/templates/calendar.html:44
 #: scheduling/ui/templates/calendar.html:96
 msgid "Gerar sugestões"
-msgstr ""
+msgstr "Gerar sugestões"
 
 #: scheduling/ui/templates/calendar.html:47
 #: scheduling/ui/templates/calendar.html:114
 msgid "Adicionar serviço extra"
-msgstr ""
+msgstr "Adicionar serviço extra"
 
 #: scheduling/ui/templates/calendar.html:52
 msgid "Exportar Excel (.xlsx)"
-msgstr ""
+msgstr "Exportar Excel (.xlsx)"
 
 #: scheduling/ui/templates/calendar.html:54
 msgid "Exportar Calendário (.ics)"
-msgstr ""
+msgstr "Exportar Calendário (.ics)"
 
 #: scheduling/ui/templates/calendar.html:58
 #: scheduling/ui/templates/calendar.html:220
 msgid "Mudar mês/ano"
-msgstr ""
+msgstr "Mudar mês/ano"
 
 #: scheduling/ui/templates/calendar.html:69
 #: scheduling/ui/templates/calendar.html:235
 msgid "Mês"
-msgstr ""
+msgstr "Mês"
 
 #: scheduling/ui/templates/calendar.html:76
 #: scheduling/ui/templates/calendar.html:227
 msgid "Ano"
-msgstr ""
+msgstr "Ano"
 
 #: scheduling/ui/templates/calendar.html:101
 msgid "Exportar"
-msgstr ""
+msgstr "Exportar"
 
 #: scheduling/ui/templates/calendar.html:105
 msgid "Excel (.xlsx)"
-msgstr ""
+msgstr "Excel (.xlsx)"
 
 #: scheduling/ui/templates/calendar.html:107
 msgid "Calendário (.ics)"
-msgstr ""
+msgstr "Calendário (.ics)"
 
 #: scheduling/ui/templates/calendar.html:126
 msgid "Confirmado"
-msgstr ""
+msgstr "Confirmado"
 
 #: scheduling/ui/templates/calendar.html:129
 msgid "Sugerido"
-msgstr ""
+msgstr "Sugerido"
 
 #: scheduling/ui/templates/calendar.html:132
 msgid "Outro"
-msgstr ""
+msgstr "Outro"
 
 #: scheduling/ui/templates/calendar.html:135
 msgid "Atalhos"
-msgstr ""
+msgstr "Atalhos"
 
 #: scheduling/ui/templates/calendar.html:135
 msgid "navega"
-msgstr ""
+msgstr "navega"
 
 #: scheduling/ui/templates/calendar.html:135
 msgid "hoje"
-msgstr ""
+msgstr "hoje"
 
 #: scheduling/ui/templates/calendar.html:135
 msgid "gerar"
-msgstr ""
+msgstr "gerar"
 
 #: scheduling/ui/templates/calendar.html:135
 msgid "Excel"
-msgstr ""
+msgstr "Excel"
 
 #: scheduling/ui/templates/calendar.html:135
 msgid "ICS"
-msgstr ""
+msgstr "ICS"
 
 #: scheduling/ui/templates/calendar.html:135
 msgid "novo extra"
-msgstr ""
+msgstr "novo extra"
 
 #: scheduling/ui/templates/calendar.html:143
 msgid "Clique para editar, trocar ou confirmar diretamente nos cards."
-msgstr ""
+msgstr "Clique para editar, trocar ou confirmar diretamente nos cards."
 
 #: scheduling/ui/templates/calendar.html:173
 msgid "Dia"
-msgstr ""
+msgstr "Dia"
 
 #: scheduling/ui/templates/calendar.html:174
 msgid "Serviços"
-msgstr ""
+msgstr "Serviços"
 
 #: scheduling/ui/templates/calendar.html:214
 #: scheduling/ui/templates/calendar.html:221
 msgid "Fechar"
-msgstr ""
+msgstr "Fechar"
 
 #: scheduling/ui/templates/calendar.html:243
 msgid "Cancelar"
-msgstr ""
+msgstr "Cancelar"
 
 #: scheduling/ui/templates/calendar.html:245
 msgid "Ir"
-msgstr ""
+msgstr "Ir"
