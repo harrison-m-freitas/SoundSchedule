@@ -1,13 +1,23 @@
 from __future__ import annotations
 from typing import Any, Dict, Iterable, Optional
+import json
 
 from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
+from django.core.serializers.json import DjangoJSONEncoder
 
 from core.middleware import get_current_user
 from scheduling.domain.models import AuditLog
 
 DEFAULT_EXCLUDE = {"id"}
+
+def _json_safe(value: Any) -> Any:
+    if value is None:
+        return None
+    try:
+        return json.loads(json.dumps(value, cls=DjangoJSONEncoder))
+    except Exception:
+        return str(value)
 
 def snapshot_instance(
     instance, *,
@@ -59,7 +69,7 @@ def audit(
         action=action,
         table=table,
         record_id=record_id,
-        before=before,
-        after=after,
+        before=_json_safe(before),
+        after=_json_safe(after),
         author=user if user and user.is_authenticated else None,
     )
