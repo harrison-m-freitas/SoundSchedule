@@ -1,4 +1,4 @@
-<div id="service-{{ s.id }}" class="relative rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition">
+<div id="service-{{ s.id }}" data-service-card class="relative rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition">
 
   {% if s.type == "Extra" %}
     {% if perms.scheduling.change_service or perms.scheduling.delete_service %}
@@ -21,7 +21,7 @@
           {% if perms.scheduling.delete_service %}
             <form
               hx-post="{% url 'service_delete' s.id %}"
-              hx-target="#service-{{ s.id }}"
+              hx-target="closest [data-service-card]"
               hx-swap="outerHTML"
               method="post">
               {% csrf_token %}
@@ -71,7 +71,7 @@
           <div class="flex items-center gap-2">
             <form
               hx-post="{% url 'swap_assignment' a.id %}"
-              hx-target="#service-{{ s.id }}"
+              hx-target="closest [data-service-card]"
               hx-swap="outerHTML"
               method="post"
               class="flex items-center gap-2"
@@ -93,7 +93,7 @@
             <!-- Confirmar (HTMX POST) -->
             <form
               hx-post="{% url 'confirm_assignment' a.id %}"
-              hx-target="#service-{{ s.id }}"
+              hx-target="closest [data-service-card]"
               hx-swap="outerHTML"
               method="post"
             >
@@ -113,7 +113,7 @@
           {% if perms.scheduling.add_assignment %}
             <form
               hx-post="{% url 'assignment_add' s.id %}"
-              hx-target="#service-{{ s.id }}"
+              hx-target="closest [data-service-card]"
               hx-swap="outerHTML"
               method="post"
               class="flex items-center gap-2"

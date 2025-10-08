@@ -50,8 +50,8 @@ class HTMXResponseBuilder:
         self.triggers.append(event_name)
         return self
 
-    def add_service_card_update(self, service_id: int) -> None:
-        html = _render_service_card_html(service_id)
+    def add_service_card_update(self, service_id: int, request: HttpRequest | None = None) -> None:
+        html = _render_service_card_html(service_id, request=request)
         self.add_oob_update(f"service-{service_id}", html)
         return self
 
@@ -133,7 +133,7 @@ class AssignmentService:
 # Helper Functions
 # =========================
 
-def _render_service_card_html(service_id: int) -> str:
+def _render_service_card_html(service_id: int, request: HttpRequest | None = None) -> str:
     """Renderiza o HTML de um card de serviço."""
     service = Service.objects.filter(id=service_id).prefetch_related(
         "assignments", "assignments__member"
@@ -141,10 +141,11 @@ def _render_service_card_html(service_id: int) -> str:
     if not service:
         return ""
     members = MemberRepository.actives()
-    return render_to_string("partials/service_card.html", {
-        "s": service,
-        "members": members
-    })
+    return render_to_string(
+        "partials/service_card.html",
+        {"s": service, "members": members},
+        request=request,
+    )
 
 def _get_calendar_referrer(request: HttpRequest) -> str:
     """Obtém URL de referência ou padrão do calendário."""
@@ -152,15 +153,16 @@ def _get_calendar_referrer(request: HttpRequest) -> str:
 
 def _build_service_card_response(
     service_id: int,
-    updated_service_ids: Optional[Iterable[int]] = None
+    updated_service_ids: Optional[Iterable[int]] = None,
+    request: HttpRequest | None = None,
 ) -> HttpResponse:
     """Constrói resposta HTMX com card principal e atualizações OOB."""
-    main_html = _render_service_card_html(service_id)
+    main_html = _render_service_card_html(service_id, request=request)
     builder = HTMXResponseBuilder(main_html)
     if updated_service_ids:
         for sid in updated_service_ids:
             if sid != service_id:
-                builder.add_service_card_update(sid)
+                builder.add_service_card_update(sid, request=request)
     service = Service.objects.filter(id=service_id).values("date").first()
     if service:
         year, month = service["date"].year, service["date"].month
@@ -211,7 +213,7 @@ def confirm_assignment(request: HttpRequest, assignment_id: int) -> HttpResponse
     """Confirma uma atribuição de serviço."""
     assignment = AssignmentService.confirm(assignment_id, user=request.user)
     if request.headers.get("HX-Request"):
-        return _build_service_card_response(assignment.service_id)
+        return _build_service_card_response(assignment.service_id, request=request)
     messages.success(request, f"{assignment.member} confirmado em {assignment.service}")
     return redirect(_get_calendar_referrer(request))
 
@@ -225,7 +227,7 @@ def swap_assignment(request: HttpRequest, assignment_id: int) -> HttpResponse:
         assignment_id, member_id, user=request.user
     )
     if request.headers.get("HX-Request"):
-        return _build_service_card_response(assignment.service_id, changed_ids)
+        return _build_service_card_response(assignment.service_id, changed_ids, request=request)
     messages.success(request, "Substituição realizada.")
     return redirect(_get_calendar_referrer(request))
 
@@ -239,7 +241,7 @@ def assignment_add(request: HttpRequest, service_id: int) -> HttpResponse:
         service_id=service_id, member_id=member_id, user=request.user
     )
     if request.headers.get("HX-Request"):
-        return _build_service_card_response(assignment.service_id, changed_ids)
+        return _build_service_card_response(assignment.service_id, changed_ids, request=request)
     return redirect(_get_calendar_referrer(request))
 
 @login_required
