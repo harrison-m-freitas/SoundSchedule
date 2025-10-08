@@ -4,6 +4,7 @@ set -e
 python manage.py collectstatic --noinput || true
 python manage.py migrate
 python manage.py create_roles || true
+python manage.py compilemessages || true
 
 # Dev: runserver; Prod: use gunicorn if GUNICORN=1
 if [ "${GUNICORN:-0}" = "1" ]; then

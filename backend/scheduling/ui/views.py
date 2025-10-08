@@ -12,6 +12,8 @@ from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.formats import date_format
+from django.utils.translation import gettext as _
 from django.db import transaction
 from django.template.loader import render_to_string
 
@@ -185,18 +187,19 @@ def month_view(request: HttpRequest) -> HttpResponse:
         grid.setdefault(day, {"services": []})["services"].append(service)
     prev_year, prev_month = (year, month - 1) if month > 1 else (year - 1, 12)
     next_year, next_month = (year, month + 1) if month < 12 else (year + 1, 1)
+    month_label = date_format(date(year, month, 1), "F")
     context = {
         "year": year,
         "month": month,
-        "month_name": cal.month_name[month],
+        "month_name": month_label,
         "days": sorted(grid.items(), key=lambda x: x[0]),
         "members": members,
         "prev_year": prev_year,
         "prev_month": prev_month,
         "next_year": next_year,
         "next_month": next_month,
-        "months_select": [(i, cal.month_name[i]) for i in range(1, 13)],
-        "years_select": list(range(year - 3, year + 4)),
+        "months_select":  [(i, date_format(date(2000, i, 1), 'F')) for i in range(1, 13)],
+        "years_select": [y for y in range(date.today().year - 5, date.today().year + 6)],
         "today_year": date.today().year,
         "today_month": date.today().month,
     }

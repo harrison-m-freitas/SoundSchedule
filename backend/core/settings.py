@@ -70,6 +70,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "core.middleware.CurrentUserMiddleware", # custom middleware to track current user
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -178,3 +179,16 @@ LOGIN_EXEMPT_PREFIXES = (
 )
 
 APPEND_SLASH = True
+
+LANGUAGES = [
+    ('en', 'English'),
+    ('pt-br', 'Português (Brasil)'),
+    ('es', 'Español (España)'),
+    ('fr', 'Français (France)'),
+    ('de', 'Deutsch (Deutschland)'),
+    ('it', 'Italiano (Italia)'),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / "locale",
+]

@@ -34,11 +34,14 @@ class LoginRequiredMiddleware:
 
     def __call__(self, request):
         path = request.path_info or "/"
-        if getattr(request, "user", None) and not request.user.is_authenticated:
+        if path.startswith(getattr(settings, "STATIC_URL", "/static/")):
             return self.get_response(request)
-        if any(path.startswith(e) for e in self.exempt):
+        if path.startswith(getattr(settings, "MEDIA_URL", "/media/")):
             return self.get_response(request)
-        if path.startswith(settings.STATIC_URL):
+        if any(path.startswith(p) for p in self.exempt):
+            return self.get_response(request)
+        user = getattr(request, "user", None)
+        if user is not None and user.is_authenticated:
             return self.get_response(request)
         login_url = getattr(settings, "LOGIN_URL", "/accounts/login/")
         next_param = quote(request.get_full_path() or "/")

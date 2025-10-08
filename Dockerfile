@@ -8,7 +8,7 @@ WORKDIR /app
 
 # OS deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential curl bash ca-certificates \
+    build-essential curl bash ca-certificates gettext \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /app/requirements.txt

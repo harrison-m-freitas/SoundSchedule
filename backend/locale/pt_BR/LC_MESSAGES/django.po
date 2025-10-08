@@ -1,0 +1,144 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-08 14:49-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+#: scheduling/ui/templates/calendar.html:4
+#: scheduling/ui/templates/calendar.html:17
+msgid "Calendário"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:22
+#: scheduling/ui/templates/calendar.html:23
+#: scheduling/ui/templates/calendar.html:88
+#: scheduling/ui/templates/calendar.html:89
+msgid "Hoje"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:35
+msgid "Mais ações"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:44
+#: scheduling/ui/templates/calendar.html:96
+msgid "Gerar sugestões"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:47
+#: scheduling/ui/templates/calendar.html:114
+msgid "Adicionar serviço extra"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:52
+msgid "Exportar Excel (.xlsx)"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:54
+msgid "Exportar Calendário (.ics)"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:58
+#: scheduling/ui/templates/calendar.html:220
+msgid "Mudar mês/ano"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:69
+#: scheduling/ui/templates/calendar.html:235
+msgid "Mês"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:76
+#: scheduling/ui/templates/calendar.html:227
+msgid "Ano"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:101
+msgid "Exportar"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:105
+msgid "Excel (.xlsx)"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:107
+msgid "Calendário (.ics)"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:126
+msgid "Confirmado"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:129
+msgid "Sugerido"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:132
+msgid "Outro"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:135
+msgid "Atalhos"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:135
+msgid "navega"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:135
+msgid "hoje"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:135
+msgid "gerar"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:135
+msgid "Excel"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:135
+msgid "ICS"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:135
+msgid "novo extra"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:143
+msgid "Clique para editar, trocar ou confirmar diretamente nos cards."
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:173
+msgid "Dia"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:174
+msgid "Serviços"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:214
+#: scheduling/ui/templates/calendar.html:221
+msgid "Fechar"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:243
+msgid "Cancelar"
+msgstr ""
+
+#: scheduling/ui/templates/calendar.html:245
+msgid "Ir"
+msgstr ""

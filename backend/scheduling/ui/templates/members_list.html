@@ -12,7 +12,7 @@
   <div class="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
     <h1 class="text-2xl font-semibold">Membros</h1>
 
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center justify-center md:justify-start">
       <!-- Busca -->
       <label class="relative block" for="member-search">
         <input
@@ -31,7 +31,8 @@
       </label>
 
       <!-- Filtros (Acessíveis) -->
-      <fieldset class="inline-flex rounded-lg overflow-hidden ring-1 ring-gray-200" aria-label="Filtro de status">
+      <fieldset class="inline-flex rounded-lg overflow-hidden ring-1 ring-gray-200 self-center sm:self-auto"
+                aria-label="Filtro de status">
         <legend class="sr-only">Filtro de status</legend>
 
         <label class="px-3 py-2 text-sm cursor-pointer flex items-center gap-2"
@@ -76,12 +77,12 @@
     </div>
 
     <div class="overflow-x-auto">
-      <table id="members-table" class="min-w-full text-sm">
+      <table id="members-table" class="min-w-full text-sm md:table-fixed">
         <thead class="bg-gray-50 text-gray-700">
           <tr class="hidden md:table-row">
             <th class="px-4 py-2 text-left font-medium">Membro</th>
             <th class="px-4 py-2 text-left font-medium">Contato</th>
-            <th class="px-4 py-2 text-left font-medium">Status</th>
+            <th class="px-4 py-2 text-center font-medium">Status</th>
             <th class="px-4 py-2 text-center font-medium">Limite/mês</th>
             <th class="px-4 py-2 text-right font-medium">Ações</th>
           </tr>
@@ -92,34 +93,37 @@
             {% with name=m.name|stringformat:"s"|default_if_none:"" nick=m.nickname|default_if_none:"" email=m.email|default_if_none:"" phone=m.phone|default_if_none:"" %}
             {% with key=name|add:" "|add:nick|add:" "|add:email|add:" "|add:phone %}
             <tr
-              class="hover:bg-gray-50 block md:table-row"
+              class="hover:bg-gray-50 flex w-full items-center gap-3 px-3 py-2
+                     md:table-row md:px-0 md:py-0"
               x-show="fits($el)"
               x-transition.opacity
               data-active="{% if m.active %}1{% else %}0{% endif %}"
               data-key="{{ key }}"
             >
               <!-- Membro -->
-              <td class="px-4 py-2 block md:table-cell">
-                <span class="md:hidden block text-xs uppercase text-gray-500">Membro</span>
-                <div class="font-medium">{{ m.name }}</div>
+              <td class="px-2 py-2 block md:table-cell md:px-4 md:py-2 flex-1 min-w-0">
+                <span class="sr-only md:not-sr-only md:hidden">Membro</span>
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="font-medium truncate">{{ m.name }}</div>
+                </div>
                 {% if m.nickname %}
-                  <div class="text-xs text-gray-500">“{{ m.nickname }}”</div>
+                  <div class="text-xs text-gray-500 mt-0.5">“{{ m.nickname }}”</div>
                 {% endif %}
               </td>
 
               <!-- Contato -->
-              <td class="px-4 py-2 text-gray-700 block md:table-cell">
-                <span class="md:hidden block text-xs uppercase text-gray-500">Contato</span>
-                {% if m.email %}<div class="truncate">{{ m.email }}</div>{% endif %}
-                {% if m.phone %}<div class="text-xs text-gray-500">{{ m.phone }}</div>{% endif %}
+              <td class="px-4 py-2 text-gray-700 hidden md:table-cell">
+                <span class="sr-only md:not-sr-only md:hidden">Contato</span>
+                {% if m.email %}<div class="truncate break-words md:max-w-[240px]">{{ m.email }}</div>{% endif %}
+                {% if m.phone %}<div class="text-xs text-gray-500 break-words md:max-w-[200px]">{{ m.phone }}</div>{% endif %}
                 {% if not m.email and not m.phone %}
                   <span class="text-xs text-gray-400">—</span>
                 {% endif %}
               </td>
 
               <!-- Status -->
-              <td class="px-4 py-2 block md:table-cell">
-                <span class="md:hidden block text-xs uppercase text-gray-500">Status</span>
+              <td class="px-2 py-2 text-center block md:table-cell md:px-4 md:py-2 shrink-0">
+                <span class="sr-only md:not-sr-only md:hidden">Status</span>
                 {% if m.active %}
                   <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-indigo-900">
                     Ativo
@@ -132,17 +136,19 @@
               </td>
 
               <!-- Limite -->
-              <td class="px-4 py-2 text-center block md:table-cell">
-                <span class="md:hidden block text-xs uppercase text-gray-500">Limite/mês</span>
+              <td class="px-4 py-2 text-center hidden md:table-cell">
+                <span class="sr-only md:not-sr-only md:hidden">Limite/mês</span>
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-indigo-900">
                   {{ m.monthly_limit }}
                 </span>
               </td>
 
               <!-- Ações -->
-              <td class="px-4 py-2 text-right block md:table-cell">
-                <span class="md:hidden block text-xs uppercase text-gray-500 mb-1">Ações</span>
-                <a class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              <td class="px-2 py-2 block md:table-cell md:px-4 md:py-2 ml-auto shrink-0 md:text-right">
+                <span class="sr-only md:not-sr-only md:hidden">Ações</span>
+                <a class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm
+                          bg-indigo-600 text-white hover:bg-indigo-700
+                          focus:outline-none focus:ring-2 focus:ring-indigo-500"
                    href="{% url 'member_edit' m.id %}">
                   Editar
                 </a>
@@ -151,9 +157,9 @@
             {% endwith %}
             {% endwith %}
           {% empty %}
-            <tr x-show="filteredCount === 0 && {{ members|length }} !== 0">
+            <tr>
               <td colspan="5" class="px-4 py-8 text-center text-gray-500">
-                Nenhum resultado para a busca atual.
+                Nenhum membro cadastrado.
               </td>
             </tr>
           {% endfor %}

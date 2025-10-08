@@ -2,7 +2,7 @@
 
   {% if s.type == "Extra" %}
     {% if perms.scheduling.change_service or perms.scheduling.delete_service %}
-      <div class="absolute right-2 top-2" x-data="{open:false}">
+      <div class="absolute right-2 top-2 z-30" x-data="{open:false}">
         <button type="button"
               class="px-2 py-1 text-xs rounded-lg bg-white ring-1 ring-gray-200 hover:bg-gray-50"
               @click="open = !open"
@@ -13,7 +13,7 @@
         </button>
 
         <div x-show="open" @click.outside="open=false"
-             class="absolute right-0 mt-1 w-44 bg-white border rounded-lg shadow-lg z-20 overflow-hidden">
+             class="absolute right-0 mt-1 w-44 bg-white border rounded-lg shadow-lg z-20 overflow-hidden origin-top-right">
           {% if perms.scheduling.change_service %}
             <a class="block px-3 py-2 text-sm hover:bg-gray-50"
              href="{% url 'service_edit' s.id %}">Editar</a>
