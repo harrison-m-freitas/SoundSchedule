@@ -71,6 +71,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.middleware.locale.LocaleMiddleware",
+    "core.middleware.ErrorLoggingMiddleware",  # custom middleware to log errors
     "core.middleware.CurrentUserMiddleware", # custom middleware to track current user
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -157,9 +158,22 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="escala@igreja.local")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+        "rotating_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": BASE_DIR / "logs" / "app.log",
+            "maxBytes": 1024 * 1024 * 5,  # 5 MB
+            "backupCount": 5,
+            "formatter": "detailed",
+        }
+    },
     "loggers": {
-        "scheduling": {"handlers": ["console"], "level": "INFO"},
+        "scheduling": {"handlers": ["console", "rotating_file"], "level": "INFO"},
+
+        "django": {"handlers": ["console", "rotating_file"], "level": "INFO", "propagate": True},
+        "django.request": {"handlers": ["console", "rotating_file"], "level": "ERROR", "propagate": False},
+        "gunicorn.error": {"handlers": ["console", "rotating_file"], "level": "INFO", "propagate": False},
     },
 }
 
