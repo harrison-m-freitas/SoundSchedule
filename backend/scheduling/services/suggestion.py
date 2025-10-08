@@ -227,6 +227,8 @@ def resuggest_month(
         return []
 
     reprocess_start_index = _find_service_index(services, from_service)
+    if reprocess_start_index >= len(services):
+        return []
 
     state = SimulationState.initialize_for_month(year, month, services)
     member_by_id = {m.id: m for m in state.members}
