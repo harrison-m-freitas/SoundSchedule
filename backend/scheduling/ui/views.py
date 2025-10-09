@@ -128,6 +128,8 @@ class AssignmentService:
         resuggest_when_add = assignment.service.type != "Extra" and _get_setting("RESUGGEST_ON_ADD", False)
         if resuggest_when_add:
             changed_ids = resuggest_month(service.date.year, service.date.month, user=user, from_service=service)
+        else:
+            changed_ids = [assignment.service_id]
         return assignment, changed_ids
 
 # =========================
@@ -328,11 +330,10 @@ def service_edit(request: HttpRequest, service_id: int) -> HttpResponse:
 def service_delete(request: HttpRequest, service_id: int) -> HttpResponse:
     """Exclui um serviço existente."""
     service = get_object_or_404(Service, id=service_id)
-    year, month = service.date.year, service.date.month
     service.delete()
 
     messages.success(request, f"Serviço '{service}' excluído.")
-    return redirect(reverse("calendar") + f"?year={year}&month={month}")
+    return HttpResponse(status=204)
 
 # =========================
 # CRUD Views - Member
