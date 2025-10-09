@@ -8,10 +8,22 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h 127.0.0.1 -p 5432 || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -h 127.0.0.1 ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
 
   web:
     build:
@@ -28,10 +40,18 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
-      - redis
+      - db:
+        condition: service_healthy
+      - redis:
+        condition: service_healthy
     profiles: [ "dev", "prod" ]
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import socket,sys; s=socket.create_connection((\"127.0.0.1\",8000),2); s.close()' || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 30s
 
   worker:
     build:
@@ -43,10 +63,18 @@ services:
     volumes:
       - ./backend:/app
     depends_on:
-      - db
-      - redis
+      - db:
+        condition: service_healthy
+      - redis:
+        condition: service_healthy
     profiles: [ "dev", "prod" ]
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "cat /proc/1/comm | grep -qi celery && python -c 'import socket; socket.create_connection((\"redis\",6379),2).close()'"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
 
   beat:
     build:
@@ -58,10 +86,19 @@ services:
     volumes:
       - ./backend:/app
     depends_on:
-      - db
-      - redis
+      - db:
+        condition: service_healthy
+      - redis:
+        condition: service_healthy
     profiles: [ "dev", "prod" ]
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "cat /proc/1/comm | grep -qi celery && python -c 'import socket; socket.create_connection((\"redis\",6379),2).close()'"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+
 
   nginx:
     image: nginx:1.27-alpine
@@ -71,9 +108,16 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - web
+      - web:
+        condition: service_healthy
     profiles: [ "prod" ]
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
 
 volumes:
   pgdata:
