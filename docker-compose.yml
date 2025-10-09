@@ -10,20 +10,20 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h 127.0.0.1 -p 5432 || exit 1"]
-      interval: 10s
+      interval: 300s
       timeout: 3s
-      retries: 5
-      start_period: 10s
+      retries: 2
+      start_period: 20s
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "redis-cli -h 127.0.0.1 ping | grep -q PONG"]
-      interval: 5s
+      interval: 300s
       timeout: 3s
-      retries: 5
-      start_period: 5s
+      retries: 2
+      start_period: 20s
 
   web:
     build:
@@ -48,9 +48,9 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "python -c 'import socket,sys; s=socket.create_connection((\"127.0.0.1\",8000),2); s.close()' || exit 1"]
-      interval: 10s
+      interval: 300s
       timeout: 3s
-      retries: 6
+      retries: 2
       start_period: 30s
 
   worker:
@@ -71,9 +71,9 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "cat /proc/1/comm | grep -qi celery && python -c 'import socket; socket.create_connection((\"redis\",6379),2).close()'"]
-      interval: 15s
+      interval: 300s
       timeout: 5s
-      retries: 6
+      retries: 2
       start_period: 30s
 
   beat:
@@ -94,9 +94,9 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "cat /proc/1/comm | grep -qi celery && python -c 'import socket; socket.create_connection((\"redis\",6379),2).close()'"]
-      interval: 15s
+      interval: 300s
       timeout: 5s
-      retries: 6
+      retries: 2
       start_period: 30s
 
 
@@ -114,10 +114,10 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/ || exit 1"]
-      interval: 10s
+      interval: 300s
       timeout: 5s
-      retries: 6
-      start_period: 10s
+      retries: 2
+      start_period: 20s
 
 volumes:
   pgdata:
