@@ -322,7 +322,7 @@ def _find_service_index(services: List[Service], target: Optional[Service]) -> i
         return 0
     for idx, service in enumerate(services):
         if service.id == target.id:
-            return idx + 1 if  idx + 1 < len(services) else idx
+            return idx + 1
     return 0
 
 def _get_locked_services(services: Iterable[Service]) -> Dict[int, Tuple[int, str]]:
