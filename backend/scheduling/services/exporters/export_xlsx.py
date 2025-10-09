@@ -1,17 +1,18 @@
 from __future__ import annotations
 
 import calendar as pycal
-from datetime import time
-from io import BytesIO
-from typing import Iterable, List, Tuple
+from datetime import time, date
+from typing import Iterable, List
 
-from django.conf import settings
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
 
+from django.utils.formats import date_format
+
 from scheduling.domain.models import Service
 from scheduling.domain.repositories import ServiceRepository
+from scheduling.utils import _get_setting
 
 # =========================
 # Utilidades
@@ -89,11 +90,11 @@ def export_schedule_xlsx(year: int, month: int, out_path: str) -> str:
     _autosize_columns(ws)
 
     ws2 = wb.create_sheet(title="Cultos (Resumo)")
-    month_name = pycal.month_name[month] # How change this to Language Pt-BR?
+    month_name = date_format(date(year, month, 1), "F")
     _header(ws2, [month_name, "Manhã", "Noite"])
 
-    morning = _parse_time(settings.DEFAULT_MORNING_TIME)
-    evening = _parse_time(settings.DEFAULT_EVENING_TIME)
+    morning = _parse_time(_get_setting("DEFAULT_MORNING_TIME", "09:00"))
+    evening = _parse_time(_get_setting("DEFAULT_EVENING_TIME", "18:00"))
 
     cal = pycal.Calendar(firstweekday=0)
     sundays = [d for d in cal.itermonthdates(year, month) if d.month == month and d.weekday() == 6]

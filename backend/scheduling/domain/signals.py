@@ -4,10 +4,8 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Optional, Tuple
 
-from django.conf import settings
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
-from django.utils import timezone
 
 from .models import Assignment, Member, Availability, Service
 from .repositories import AssignmentRepository, MemberRepository, _count_extra_in_last_served

@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import logging
 from datetime import timedelta
-from typing import Iterable, List, Optional, Tuple
+from typing import Iterable, List, Tuple
 
 from celery import shared_task
-from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -13,6 +12,8 @@ from django.utils import timezone
 from scheduling.services.calendar import ensure_month_services
 from scheduling.services.suggestion import suggest_for_month
 from scheduling.domain.models import Assignment, Service
+
+from scheduling.utils import _get_setting
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ def monthly_draft_generation() -> str:
         str: A message indicating the result of the draft generation.
     """
     now = timezone.localtime()
-    if now.day != settings.SCHEDULE_GENERATION_DAY or now.hour != settings.SCHEDULE_GENERATION_HOUR:
+    if now.day != _get_setting("SCHEDULE_GENERATION_DAY") or now.hour != _get_setting("SCHEDULE_GENERATION_HOUR"):
         return "Not the scheduled time."
     year, month = _next_year_month(now.year, now.month)
     log.info("Monthly draft generation: ensuring services for %04d-%02d", year, month)
@@ -83,7 +84,7 @@ def notify_month_generated(year: int, month: int) -> int:
         log.info("notify_month_generated: nenhum destinatário encontrado.")
         return 0
     try:
-        send_mail(subject, msg, settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=True)
+        send_mail(subject, msg, _get_setting("DEFAULT_FROM_EMAIL"), recipients, fail_silently=True)
         log.info("notify_month_generated: enviado para %d destinatário(s).", len(recipients))
     except Exception:  # pragma: no cover
         log.exception("Falha ao enviar notify_month_generated.")
@@ -115,7 +116,7 @@ def notify_assignment(member_email: str, service_id: int, status: str) -> None:
     msg = f"Serviço: {s.type} em {s.date} às {s.time.strftime('%H:%M')}."
 
     try:
-        send_mail(subject, msg, settings.DEFAULT_FROM_EMAIL, [member_email], fail_silently=True)
+        send_mail(subject, msg, _get_setting("DEFAULT_FROM_EMAIL"), [member_email], fail_silently=True)
     except Exception:  # pragma: no cover
         log.exception("Falha ao enviar notify_assignment para %s (service=%s).", member_email, service_id)
 

@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from datetime import date, datetime, time
 from typing import Dict, Iterable, List, Optional, Set, Tuple
 
-from django.conf import settings
 from django.db.models import Q, QuerySet
 
 from scheduling.domain.models import (
@@ -14,6 +13,7 @@ from scheduling.domain.models import (
     Service,
     Assignment,
 )
+from scheduling.utils import _get_setting
 
 # ==========================================================
 # Helpers de política (clássico: sem “surpresa” em cada chamada)
@@ -24,7 +24,7 @@ def _count_extra_in_last_served() -> bool:
     Returns:
         bool: True se deve contar serviços extras, False caso contrário.
     """
-    return getattr(settings, "COUNT_EXTRA_IN_LAST_SERVED", False)
+    return _get_setting("COUNT_EXTRA_IN_LAST_SERVED", False)
 
 # ==========================================================
 # Member Repository
@@ -72,7 +72,7 @@ class MemberRepository:
         Returns:
             int: O limite mensal do membro.
         """
-        return member.monthly_limit or settings.DEFAULT_MONTHLY_LIMIT
+        return member.monthly_limit or _get_setting("DEFAULT_MONTHLY_LIMIT", 2)
 
 # ==========================================================
 # Availability Repository
@@ -137,7 +137,7 @@ class ServiceRepository:
             .order_by("date", "time")
             .prefetch_related("assignments", "assignments__member")
         )
-        if not include_extra and not getattr(settings, "SUGGEST_FOR_EXTRA", False):
+        if not include_extra and not _get_setting("SUGGEST_FOR_EXTRA", False):
             qs = qs.filter(type="Culto")
         return qs
 
@@ -203,7 +203,7 @@ class AssignmentRepository:
             QuerySet[Assignment]: As atribuições confirmadas.
         """
         qs = Assignment.objects.filter(status="confirmed").select_related("member", "service")
-        if not include_extra and not getattr(settings, "SUGGEST_FOR_EXTRA", False):
+        if not include_extra and not _get_setting("SUGGEST_FOR_EXTRA", False):
             qs = qs.filter(service__type="Culto")
         return qs
 
@@ -238,7 +238,7 @@ class AssignmentRepository:
             QuerySet[Assignment]: As atribuições sugeridas para o mês específico.
         """
         qs = Assignment.objects.filter(status="suggested").select_related("member", "service")
-        if not include_extra and not getattr(settings, "SUGGEST_FOR_EXTRA", False):
+        if not include_extra and not _get_setting("SUGGEST_FOR_EXTRA", False):
             qs = qs.filter(service__type="Culto")
         qs = qs.filter(service__date__year=year, service__date__month=month)
         return qs.order_by("service__date", "service__time", "member__name")

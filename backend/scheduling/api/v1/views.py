@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.http import HttpResponse
-from django.utils import timezone
 import tempfile, os
 
 from scheduling.services.exporters.export_xlsx import export_schedule_xlsx

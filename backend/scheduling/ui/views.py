@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import calendar as cal
 from dataclasses import dataclass
 from datetime import date
 from typing import Dict, Iterable, List, Set, Tuple, Any, Optional
@@ -22,7 +21,7 @@ from scheduling.domain.forms import MemberForm, ServiceForm
 from scheduling.domain.repositories import MemberRepository, ServiceRepository
 from scheduling.services.calendar import ensure_month_services
 from scheduling.services.suggestion import suggest_for_month, ranking_monthly_candidates, resuggest_month
-from scheduling.utils import _get_ym_from_request
+from scheduling.utils import _get_ym_from_request, _get_setting
 
 # =========================
 # HTMX Response Builder
@@ -126,7 +125,9 @@ class AssignmentService:
             assignment.status = AssignmentStatus.CONFIRMED
             assignment.save(update_fields=["status"])
 
-        changed_ids = resuggest_month(service.date.year, service.date.month, user=user, from_service=service)
+        resuggest_when_add = assignment.service.type != "Extra" and _get_setting("RESUGGEST_ON_ADD", False)
+        if resuggest_when_add:
+            changed_ids = resuggest_month(service.date.year, service.date.month, user=user, from_service=service)
         return assignment, changed_ids
 
 # =========================

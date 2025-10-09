@@ -4,10 +4,10 @@ from datetime import date, time
 import calendar as pycal
 from typing import Iterable, List, Sequence, Tuple
 
-from django.conf import settings
 from django.db import transaction
 
 from scheduling.domain.models import Service, ServiceType
+from scheduling.utils import _get_setting
 
 # ========= Utilidades tradicionais =========
 
@@ -31,7 +31,7 @@ def _default_times() -> Tuple[time, time]:
     Returns:
         Tuple[time, time]: Horários padrão de manhã e à noite.
     """
-    return _parse_time(settings.DEFAULT_MORNING_TIME), _parse_time(settings.DEFAULT_EVENING_TIME)
+    return _parse_time(_get_setting("DEFAULT_MORNING_TIME", "09:00")), _parse_time(_get_setting("DEFAULT_EVENING_TIME", "18:00"))
 
 def sundays_in_month(year: int, month: int) -> List[date]:
     """Lista os domingos (weekday=6) do mês/ano informados.

@@ -1,9 +1,9 @@
-from datetime import date
-from typing import Tuple
+from typing import Tuple, Any
 import json
 
 from django.http import HttpRequest
 from django.utils import timezone
+from django.conf import settings
 
 # =========================
 # Helpers
@@ -39,3 +39,7 @@ def _get_ym_from_request(request: HttpRequest, default_today: bool = True) -> Tu
     if not (1 <= m <= 12):
         return None, None, "Parâmetro 'month' deve estar entre 1 e 12."
     return y, m, None
+
+def _get_setting(name: str, default: Any = None) -> Any:
+    """Obtém uma configuração do Django settings com um valor padrão."""
+    return getattr(settings, name, default)

@@ -4,8 +4,9 @@ import logging
 from typing import List
 
 from django.apps import AppConfig
-from django.conf import settings
 from django.core.checks import Error, Tags, register
+
+from scheduling.utils import _get_setting
 
 log = logging.getLogger(__name__)
 
@@ -34,17 +35,17 @@ def scheduling_settings_check(app_configs, **kwargs):
     errors: List[Error] = []
 
     errors += _validate_time_string(
-        getattr(settings, "DEFAULT_MORNING_TIME", "09:00"),
+        _get_setting("DEFAULT_MORNING_TIME", "09:00"),
         "DEFAULT_MORNING_TIME",
         "scheduling.E001",
     )
     errors += _validate_time_string(
-        getattr(settings, "DEFAULT_EVENING_TIME", "18:00"),
+        _get_setting("DEFAULT_EVENING_TIME", "18:00"),
         "DEFAULT_EVENING_TIME",
         "scheduling.E002",
     )
 
-    limit = getattr(settings, "DEFAULT_MONTHLY_LIMIT", 2)
+    limit = _get_setting("DEFAULT_MONTHLY_LIMIT", 2)
     if not isinstance(limit, int) or limit < 1:
         errors.append(
             Error(

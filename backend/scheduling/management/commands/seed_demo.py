@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from django.conf import settings
 
 from scheduling.domain.models import Member, Availability, ShiftChoices
+from scheduling.utils import _get_setting
 
 DEFAULT_NAMES = [
     "Vitor", "Gabriel B", "Euler", "Gabriel R", "Davi F",
@@ -18,7 +18,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--limit",
             type=int,
-            default=getattr(settings, "DEFAULT_MONTHLY_LIMIT", 2),
+            default=_get_setting("DEFAULT_MONTHLY_LIMIT", 2),
             help="Limite mensal por membro (default: settings.DEFAULT_MONTHLY_LIMIT).",
         )
         parser.add_argument(

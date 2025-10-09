@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from django.conf import settings
 from django.utils.timezone import (
     get_current_timezone,
     get_current_timezone_name,
@@ -11,8 +10,8 @@ from django.utils.timezone import (
 )
 from icalendar import Calendar, Event, vCalAddress, vText
 
-from scheduling.domain.models import Service  # mantenha conforme seu projeto
-
+from scheduling.domain.models import Service
+from scheduling.utils import _get_setting
 
 def export_schedule_ics(year: int, month: int) -> bytes:
     """Exporta a programação para um arquivo ICS.
@@ -31,7 +30,7 @@ def export_schedule_ics(year: int, month: int) -> bytes:
     cal.add("X-WR-TIMEZONE", get_current_timezone_name())
 
     tz = get_current_timezone()
-    duration_min = int(getattr(settings, "ICS_EVENT_DURATION_MINUTES", 120))
+    duration_min = int(_get_setting("ICS_EVENT_DURATION_MINUTES", 120))
     now = tz_now()
 
     services = (
@@ -68,7 +67,7 @@ def export_schedule_ics(year: int, month: int) -> bytes:
         ev.add("description", "\n".join(desc_lines))
 
         # Local opcional (se configurado)
-        loc = getattr(settings, "CALENDAR_LOCATION", None)
+        loc = _get_setting("CALENDAR_LOCATION", None)
         if loc:
             ev.add("location", loc)
 

@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Q
@@ -18,6 +17,7 @@ from scheduling.domain.repositories import (
     AssignmentRepository,
     ProjectionRepository,
 )
+from scheduling.utils import _get_setting
 
 PENALTY_RECENT_DAYS = 14
 HARD_BLOCK_SCORE = -10_000
@@ -178,7 +178,7 @@ def suggest_for_month(year: int, month: int, user: User | None = None) -> Tuple[
         year=year, month=month, defaults={"generated_by": user}
     )
     services: List[Service] = ProjectionRepository.month_services_with_prefetch(
-        year, month, include_extra=getattr(settings, "SUGGEST_FOR_EXTRA", False)
+        year, month, include_extra=_get_setting("SUGGEST_FOR_EXTRA", False)
     )
     if not services:
         return (1 if created else 0, 0)
@@ -221,7 +221,7 @@ def resuggest_month(
         List[int]: IDs dos serviços que foram alterados
     """
     services = ProjectionRepository.month_services_with_prefetch(
-        year, month, include_extra=getattr(settings, "SUGGEST_FOR_EXTRA", False)
+        year, month, include_extra=_get_setting("SUGGEST_FOR_EXTRA", False)
     )
     if not services:
         return []
@@ -283,7 +283,7 @@ def resuggest_month(
 def ranking_monthly_candidates(year: int, month: int, limit: int = 5) -> Dict[int, List[Dict]]:
     """Retorna ranking de candidatos para cada serviço do mês."""
     services = ProjectionRepository.month_services_with_prefetch(
-        year, month, include_extra=getattr(settings, "SUGGEST_FOR_EXTRA", False)
+        year, month, include_extra=_get_setting("SUGGEST_FOR_EXTRA", False)
     )
     if not services:
         return {}

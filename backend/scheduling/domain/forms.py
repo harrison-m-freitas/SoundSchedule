@@ -3,10 +3,9 @@ from __future__ import annotations
 from typing import Optional
 
 from django import forms
-from django.conf import settings
 
 from scheduling.domain.models import Service, Member, Availability, ShiftChoices
-
+from scheduling.utils import _get_setting
 
 # ===== Utilidades simples =====
 
@@ -80,7 +79,7 @@ class MemberForm(forms.ModelForm):
         }
         help_texts = {
             "monthly_limit": "Limite de confirmações por mês (≥ 1). Padrão: "
-                             f"{getattr(settings, 'DEFAULT_MONTHLY_LIMIT', 2)}",
+                             f"{_get_setting('DEFAULT_MONTHLY_LIMIT', 2)}",
         }
 
     def clean_name(self) -> str:
