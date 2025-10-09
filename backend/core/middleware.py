@@ -5,11 +5,12 @@ import json
 import logging
 import uuid
 
-from urllib.parse import quote, urlencode
+from urllib.parse import urlencode
 
-from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import resolve, Resolver404
+
+from scheduling.utils import _get_setting
 
 _local = threading.local()
 
@@ -56,22 +57,35 @@ class LoginRequiredMiddleware:
     """Redireciona usuários não autenticados para a página de login."""
     def __init__(self, get_response):
         self.get_response = get_response
-        self.exempt = tuple(getattr(settings, "LOGIN_EXEMPT_PREFIXES", []))
+        self.exempt = tuple(_get_setting("LOGIN_EXEMPT_PREFIXES", []))
 
     def __call__(self, request):
         path = request.path_info or "/"
-        if path.startswith(getattr(settings, "STATIC_URL", "/static/")):
+        if path.startswith(_get_setting("STATIC_URL", "/static/")):
             return self.get_response(request)
-        if path.startswith(getattr(settings, "MEDIA_URL", "/media/")):
+        if path.startswith(_get_setting("MEDIA_URL", "/media/")):
             return self.get_response(request)
         if any(path.startswith(p) for p in self.exempt):
             return self.get_response(request)
+
         user = getattr(request, "user", None)
         if user is not None and user.is_authenticated:
             return self.get_response(request)
-        login_url = getattr(settings, "LOGIN_URL", "/accounts/login/")
-        next_param = quote(request.get_full_path() or "/")
-        return redirect(f"{login_url}?next={next_param}")
+
+        login_url = _get_setting("LOGIN_URL", "/accounts/login/")
+
+        is_https = request.is_secure() or request.META.get("HTTP_X_FORWARDED_PROTO") == "https"
+        insecure_flag = (
+            _get_setting("SESSION_COOKIE_SECURE", False) or _get_setting("CSRF_COOKIE_SECURE", False)
+            and not is_https
+        )
+
+        params = { "next": request.get_full_path() or "/", }
+        if insecure_flag:
+            params["insecure"] = "1"
+            params["reason"] = "secure_cookies_on_http"
+
+        return redirect(f"{login_url}?{urlencode(params)}")
 
 class StrictSlashRedirectMiddleware:
     """Redireciona URLs sem barra final para a versão com barra final, se aplicável."""
@@ -85,9 +99,9 @@ class StrictSlashRedirectMiddleware:
         method = request.method.upper()
 
         if path != "/" and not path.endswith("/") and method in self.SAFE_METHODS:
-            if path.startswith(getattr(settings, "STATIC_URL", "/static/")):
+            if path.startswith(_get_setting("STATIC_URL", "/static/")):
                 return self.get_response(request)
-            if path.startswith(getattr(settings, "MEDIA_URL", "/media/")):
+            if path.startswith(_get_setting("MEDIA_URL", "/media/")):
                 return self.get_response(request)
 
             try:
